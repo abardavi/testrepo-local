@@ -491,6 +491,23 @@ spec:
         - name: kind
           value: task
         resolver: bundles
+    - name: tpa-scan
+      params:
+      - name: image-url
+        value: $(tasks.build-image-index.results.IMAGE_URL)
+      - name: image-digest
+        value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      runAfter:
+      - build-image-index
+      taskRef:
+        params:
+        - name: name
+          value: tpa-scan
+        - name: bundle
+          value: quay.io/konflux-ci/tekton-catalog/task-tpa-scan:0.1@sha256:6c33b3cb3cf7a0d66e9abb4479f6cfe5894a0305bbacdf90cba34140329c9f68
+        - name: kind
+          value: task
+        resolver: bundles
     - name: push-dockerfile
       params:
       - name: IMAGE
@@ -541,6 +558,56 @@ spec:
       optional: true
     - name: netrc
       optional: true
+  taskRunSpecs:
+  - pipelineTaskName: build-container
+    stepSpecs:
+    - name: build
+      computeResources:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+    - name: push
+      computeResources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "600m"
+          memory: "2Gi"
+    - name: sbom-syft-generate
+      computeResources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "1"
+          memory: "2Gi"
+    - name: use-trusted-artifact
+      computeResources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          memory: "2Gi"
+    - name: prepare-sboms
+      computeResources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          cpu: "100m"
+          memory: "256Mi"
+    - name: upload-sbom
+      computeResources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          cpu: "100m"
+          memory: "256Mi"
   taskRunTemplate:
     serviceAccountName: build-pipeline-testrepo-local-cfe03
   workspaces:
